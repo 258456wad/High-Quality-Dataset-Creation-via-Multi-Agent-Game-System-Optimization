@@ -6,7 +6,7 @@ Persona-Driven Evolvable Instruction Synthesis: High-Quality Dataset Creation vi
 
 ### 1.1.1、本机运行
 
-deepseek 的api：sk-81c79590bb1243a6bfddbd5d87a96ff0
+deepseek 的api:YOUR_API_KEY
 
 指令参考：（***\*新代码不需要指令运行，下面是需求规划智能体需要输入的提示词\****）
 
