@@ -1,270 +1,314 @@
-# High-Quality-Dataset-Creation-via-Multi-Agent-Game-System-Optimization
-Persona-Driven Evolvable Instruction Synthesis: High-Quality Dataset Creation via Multi-Agent Game System Optimization
-# 一、数据生成阶段
+# High-Quality Dataset Creation via Multi-Agent Game System Optimization
 
-## 1.1、数据生成阶段，实验合成化数据集
+Persona-Driven Evolvable Instruction Synthesis: High-Quality Dataset Creation via Multi-Agent Game System Optimization.
 
-### 1.1.1、本机运行
+This repository records the workflow for generating persona-driven synthetic datasets, filtering finance-domain outputs with a multi-agent game system, and preparing the generated data for downstream model testing.
 
-deepseek 的api:YOUR_API_KEY
+## Repository Focus
 
-指令参考：（***\*新代码不需要指令运行，下面是需求规划智能体需要输入的提示词\****）
+The project contains an experimental pipeline for high-quality synthetic data creation. The core workflow is:
 
-我想要输出5条高质量合成化的数据集，而且是基于人设的，比较专业的
+1. Generate candidate synthetic data from persona, instruction, and knowledge sources.
+2. Use finance-oriented prompt templates to create professional domain examples.
+3. Deduplicate, select, and classify the generated data.
+4. Test the selected data in Qwen/LlamaFactory-based model training or evaluation environments.
 
-我想要输出10条高质量合成化的数据集，而且是基于人设的，比较专业的
+## Requirements
 
-我想要输出20条高质量合成化的数据集，而且是基于人设的，比较专业的
+Install the Python dependencies first:
 
-我想要输出200条高质量合成化的数据集，而且是基于人设的，比较专业的
-
-我想要输出3000条高质量合成化的数据集，而且是基于人设的，比较专业的
-
-我想要输出2000条高质量合成化的数据集，而且是基于人设的，比较专业的
-
-我想要输出5000条高质量合成化的数据集，而且是基于人设的，比较专业的
-
-金融
-
-我想要输出高质量合成化的数据集，而且是基于人设的，比较专业的
-
-记得挂梯子！
-
-如果在pycharm里面运行需要先
-
-cd E:\python程序\金融大模型\决策树和数据集生成\personalhub数据集生成\persona-hub-main\persona-hub-main
-
-```
-python E:\python程序\金融大模型\决策树和数据集生成\personalhub数据集生成\persona-hub-main\persona-hub-main\code\openai_synthesize.py --template math --sample_size 10 --output_path output_data/test_math.jsonl
+```bash
+pip install -r requirements.txt
 ```
 
+Configure the DeepSeek API key through an environment variable instead of hard-coding it:
 
+```bash
+# Windows PowerShell
+$env:DEEPSEEK_API_KEY="YOUR_DEEPSEEK_API_KEY"
 
-非金融版本：
-
-python E:\python程序\金融大模型\决策树和数据集生成\personalhub数据集生成\persona-hub-main\persona-hub-main\code\openai_synthesize.py --template universal_gen_v2_cn --sample_size 200 --output_path output_data/universal_gen_v2_cn.jsonl
-
+# Linux / macOS
+export DEEPSEEK_API_KEY="YOUR_DEEPSEEK_API_KEY"
 ```
-python E:\python程序\金融大模型\决策树和数据集生成\personalhub数据集生成\persona-hub-main\persona-hub-main\code\openai_synthesize.py --template finance_cn --sample_size 10 --output_path output_data/test_math.jsonl
+
+If your network requires a proxy or VPN for model API access, enable it before running the synthesis commands.
+
+## 1. Data Generation
+
+### 1.1 Experimental Synthetic Dataset Generation
+
+#### 1.1.1 Local Run
+
+The newer code does not require manually running the demand-planning prompts below, but they are useful references for the planning agent input:
+
+```text
+I want to output 5 high-quality synthetic dataset entries that are persona-based and relatively professional.
+I want to output 10 high-quality synthetic dataset entries that are persona-based and relatively professional.
+I want to output 20 high-quality synthetic dataset entries that are persona-based and relatively professional.
+I want to output 200 high-quality synthetic dataset entries that are persona-based and relatively professional.
+I want to output 2,000 high-quality synthetic dataset entries that are persona-based and relatively professional.
+I want to output 3,000 high-quality synthetic dataset entries that are persona-based and relatively professional.
+I want to output 5,000 high-quality synthetic dataset entries that are persona-based and relatively professional.
+Finance
+I want to output high-quality synthetic dataset entries that are persona-based and relatively professional.
 ```
 
-加了cn代表是中文的，这个是金融版本
+Run commands from the project root. For example:
 
-**## 阶段1：用主库生成多样化金融数据（最全面）**
+```bash
+python code/openai_synthesize.py --template math --sample_size 10 --output_path output_data/test_math.jsonl
+```
 
-输入的改成persona.jsonl
+Non-finance Chinese template example:
 
+```bash
+python code/openai_synthesize.py --template universal_gen_v2_cn --sample_size 200 --output_path output_data/universal_gen_v2_cn.jsonl
+```
+
+Finance Chinese template example:
+
+```bash
+python code/openai_synthesize.py --template finance_cn --sample_size 10 --output_path output_data/test_math.jsonl
+```
+
+The `_cn` suffix indicates a Chinese-language prompt template. The finance templates are used for finance-domain synthesis.
+
+#### Stage 1: Generate Diverse Finance Data From the Main Persona Source
+
+Use `persona.jsonl` as the target output file:
+
+```bash
 python code/openai_synthesize.py --template stock_analysis_cn --sample_size 100 --output_path output_data/persona.jsonl
+```
 
-**## 阶段2：用指令库生成问题类数据（最相关）**
+#### Stage 2: Generate Question-Style Data From the Instruction Source
 
-输入的改成instruction.jsonl
+Use `instruction.jsonl` as the target output file:
 
+```bash
 python code/openai_synthesize.py --template trading_strategy_cn --sample_size 100 --output_path output_data/instruction.jsonl
+```
 
-**## 阶段3：用知识库生成文章类数据**
+#### Stage 3: Generate Article-Style Data From the Knowledge Source
 
-输入的改成knowledge.jsonl
+Use `knowledge.jsonl` as the target output file:
 
+```bash
 python code/openai_synthesize.py --template stock_knowledge_cn --sample_size 50 --output_path output_data/knowledge.jsonl
+```
 
-![image-20260317153203508](C:\Users\hp\AppData\Roaming\Typora\typora-user-images\image-20260317153203508.png)
+See `demo_openai_synthesize.sh` for a compact command reference.
 
-![image-20260308192049444](C:\Users\hp\AppData\Roaming\Typora\typora-user-images\image-20260308192049444.png)
+#### 1.1.2 Server Run
 
-格式参考：demo_openai_synthesize.sh
+On the server, enter the project code directory first:
 
-![image-20260308192126924](C:\Users\hp\AppData\Roaming\Typora\typora-user-images\image-20260308192126924.png)
+```bash
+cd /mnt/sdd/wqd/experimental-group-multi-agent-game/code
+```
 
-### 1.1.2、服务器运行
+Run `manager.py` in the background:
 
-cd /mnt/sdd/wqd/实验组-多智能体博弈/code
+```bash
+nohup python -u "/mnt/sdd/wqd/experimental-group-multi-agent-game/code/manager.py" > /mnt/sdd/wqd/experimental-group-multi-agent-game/code/train.log 2>&1 &
+```
 
-如果要在服务器挂后台：
+View logs:
 
-nohup python -u "/mnt/sdd/wqd/实验组-多智能体博弈/code/manager.py" > /mnt/sdd/wqd/实验组-多智能体博弈/code/train.log 2>&1 &
+```bash
+tail -f /mnt/sdd/wqd/experimental-group-multi-agent-game/code/train.log
+tail -n 1000 /mnt/sdd/wqd/experimental-group-multi-agent-game/code/train.log
+```
 
-如果想查看：
+Check whether the process is still running:
 
-tail -f /mnt/sdd/wqd/实验组-多智能体博弈/code/train.log
-
-tail -n 1000 /mnt/sdd/wqd/实验组-多智能体博弈/code/train.log
-
-查看是否还在运行：
-
+```bash
 ps -ef | grep manager.py
+```
 
-如果想杀死进程：
+Stop the process if needed:
 
-先找到进程号：ps -ef | grep manager.py
+```bash
+ps -ef | grep manager.py
+kill -9 PROCESS_ID
+```
 
-然后杀死进程：kill -9 进程号
+#### 1.1.3 Server-Side Dataset Filtering
 
-### 1.1.3、服务器运行生成的数据集筛选
-严格的 6 大金融分类体系!!!
+The filtering stage uses a strict six-category finance taxonomy:
+
+```python
 CATEGORIES = {
-    "quant_trading": "量化交易与资产管理（如：量化策略、资产配置、智能投顾、因子投资等）",
-    "fintech_infra": "金融科技与基础设施（如：金融大模型、智能Agent、金融知识图谱、隐私计算等）",
-    "financial_regulation": "金融监管（如：穿透式监管、内幕交易识别、老鼠仓检测、反洗钱、防范市场操纵等）",
-    "laws_and_regulations": "法律法规（如：证券法、金融合规审查、政策条文比对、合规问答问责、法律风险审计等）",
-    "risk_management": "风险管理与信用评估（如：企业评级、信贷风控、违约概率建模、系统性风险、压力测试等）",
-    "digital_finance": "传统金融业务数字化（如：银行/券商智能客服、投行IPO尽调辅助、智能保险核保理赔等）"
+    "quant_trading": "Quantitative trading and asset management, such as quantitative strategies, asset allocation, robo-advisory, and factor investing",
+    "fintech_infra": "Financial technology and infrastructure, such as financial large models, intelligent agents, financial knowledge graphs, and privacy computing",
+    "financial_regulation": "Financial regulation, such as look-through supervision, insider-trading detection, front-running detection, anti-money laundering, and market-manipulation prevention",
+    "laws_and_regulations": "Laws and regulations, such as securities law, financial compliance review, policy comparison, compliance Q&A accountability, and legal risk auditing",
+    "risk_management": "Risk management and credit assessment, such as enterprise ratings, credit risk control, default-probability modeling, systemic risk, and stress testing",
+    "digital_finance": "Digital transformation of traditional financial services, such as bank or brokerage intelligent customer service, IPO due-diligence assistance, and intelligent insurance underwriting or claims settlement"
 }
+```
 
-cd /mnt/sdd/wqd/实验组-多智能体博弈/code
+Run the selector in the background:
 
-如果要在服务器挂后台：
+```bash
+cd /mnt/sdd/wqd/experimental-group-multi-agent-game/code
+nohup python -u "/mnt/sdd/wqd/experimental-group-multi-agent-game/code/dataset_select.py" > /mnt/sdd/wqd/experimental-group-multi-agent-game/code/output_data/dataset_select.log 2>&1 &
+```
 
-nohup python -u "/mnt/sdd/wqd/实验组-多智能体博弈/code/dataset_select.py" > /mnt/sdd/wqd/实验组-多智能体博弈/code/output_data/dataset_select.log 2>&1 &
+View selector logs:
 
-如果想查看：
+```bash
+tail -f /mnt/sdd/wqd/experimental-group-multi-agent-game/code/output_data/dataset_select.log
+tail -n 1000 /mnt/sdd/wqd/experimental-group-multi-agent-game/code/output_data/dataset_select.log
+```
 
-tail -f /mnt/sdd/wqd/实验组-多智能体博弈/code/output_data/dataset_select.log
+Check or stop the selector process:
 
-tail -n 1000 /mnt/sdd/wqd/实验组-多智能体博弈/code/output_data/dataset_select.log
-
-查看是否还在运行：
-
+```bash
 ps -ef | grep dataset_select.py
+kill -9 PROCESS_ID
+```
 
-如果想杀死进程：
+### 1.2 Generation-Only Baseline Without Deduplication
 
-先找到进程号：ps -ef | grep dataset_select.py
+Run the generation-only baseline in the background:
 
-然后杀死进程：kill -9 进程号
+```bash
+nohup python -u "/mnt/sdd/wqd/baseline-no-dedup-generation/manager.py" > /mnt/sdd/wqd/baseline-no-dedup-generation/train.log 2>&1 &
+```
 
-## 1.2、数据生成阶段，仅生成不去重
+View logs:
 
-如果要在服务器挂后台：
+```bash
+tail -f /mnt/sdd/wqd/baseline-no-dedup-generation/train.log
+tail -n 1000 /mnt/sdd/wqd/baseline-no-dedup-generation/train.log
+```
 
-nohup python -u "/mnt/sdd/wqd/测试组-不加去重仅合成/manager.py" > /mnt/sdd/wqd/测试组-不加去重仅合成/train.log 2>&1 &
+Check or stop the process:
 
-如果想查看：
-
-tail -f /mnt/sdd/wqd/测试组-不加去重仅合成/train.log
-
-tail -n 1000 /mnt/sdd/wqd/测试组-不加去重仅合成/train.log
-
-查看是否还在运行：
-
+```bash
 ps -ef | grep manager.py
+kill -9 PROCESS_ID
+```
 
-如果想杀死进程：
+### 1.3 Original Paper Simulation Baseline
 
-先找到进程号：ps -ef | grep manager.py
+This baseline reproduces a random-sampling style experiment and is not the current multi-agent game experiment.
 
-然后杀死进程：kill -9 进程号
+Run a random-sampling test on the server:
 
-## 1.3、数据生成阶段，原始论文仿真
+```bash
+python /mnt/sdd/wqd/control-random-sampling-personahub/code/openai_synthesize.py --template instruction --sample_size 5000 --output_path output_data/test_instruction_5000.jsonl
+```
 
-原始论文仿真（非当前实验）
+Background run:
 
-服务器里面跑随机组的测试：
+```bash
+cd /mnt/sdd/wqd/control-random-sampling-personahub
 
-python /mnt/sdd/wqd/对照组-随机采样-personahub/code/openai_synthesize.py --template instruction --sample_size 5000 --output_path output_data/test_instruction_5000.jsonl
-
-后台：
-
-cd /mnt/sdd/wqd/对照组-随机采样-personahub
-
-
-
-nohup python -u /mnt/sdd/wqd/对照组-随机采样-personahub/code/openai_synthesize.py \
-
- --template instruction \
-
- --sample_size 5000 \
-
- --output_path /mnt/sdd/wqd/对照组-随机采样-personahub/output_data/test_instruction_5000.jsonl \
-
- \> /mnt/sdd/wqd/对照组-随机采样-personahub/run_synthesize_instruction_5000.log 2>&1 &
-
-
+nohup python -u /mnt/sdd/wqd/control-random-sampling-personahub/code/openai_synthesize.py \
+  --template instruction \
+  --sample_size 5000 \
+  --output_path /mnt/sdd/wqd/control-random-sampling-personahub/output_data/test_instruction_5000.jsonl \
+  > /mnt/sdd/wqd/control-random-sampling-personahub/run_synthesize_instruction_5000.log 2>&1 &
 
 ps -ef | grep openai_synthesize.py
-
 tail -f run_synthesize_instruction_5000.log
+```
 
+## 2. Testing the Data in Models
 
+### 2.1 Local Testing
 
+The local testing setup uses Qwen3-0.6B, Qwen3-1.7B, and Qwen3-8B models.
 
+Example local model directory:
 
-# 二、数据在模型中测试
-
-## 2.1本机跑
-
-本次采用Qwen3-0.6b，Qwen3-1.7B，Qwen3-8B的模型
-
-模型存放：
-
+```text
 E:\Python_Code\AAA_Python_model
-记得生成的output_data也要更新放到这个文件夹下面！！！
+```
 
-更新的数据还需要在：
+After generating new data, copy or register the updated `output_data` files in the model workspace. Also update the corresponding `file_name` entry in:
 
+```text
 E:\Python_Code\AAA_Python_model\LlamaFactory-main\data\dataset_info.json
-
-里面file_name修改
-
-终端先cd：
-
 ```
+
+Start LlamaFactory:
+
+```bash
 cd E:\Python_Code\AAA_Python_model\LlamaFactory-main
-```
-
-然后：
-
-```
 llamafactory-cli webui
 ```
 
-如果没成，终端输入
+If the command is not available, install the package in editable mode from the LlamaFactory directory:
 
-```
+```bash
 pip install -e .
 ```
-本机电脑的模型路径是：E:\Python_Code\AAA_Python_model\Qwen3-0.6b
-大概这个样子调一下吧，直接跑就行
 
-## 2.2服务器
+Example local model path:
 
-如果在服务器上面跑，conda环境在/mnt/sdd/wqd/conda_envs/qwen3_factory
-数据集存放：
-/mnt/sdd/wqd/AAA_Python_model/output_data/select_output_test_manager.jsonl
-首先：
-
+```text
+E:\Python_Code\AAA_Python_model\Qwen3-0.6b
 ```
+
+Adjust the model path in LlamaFactory and run the experiment directly.
+
+### 2.2 Server Testing
+
+Example server conda environment:
+
+```text
+/mnt/sdd/wqd/conda_envs/qwen3_factory
+```
+
+Example dataset path:
+
+```text
+/mnt/sdd/wqd/AAA_Python_model/output_data/select_output_test_manager.jsonl
+```
+
+Activate the environment:
+
+```bash
 conda activate /mnt/sdd/wqd/conda_envs/qwen3_factory
 ```
 
-如果可以的话可以查看一下python路径对不对，如果是conda的话就对了：
+Optionally verify that the Python executable points to the expected conda environment:
 
-```
+```bash
 which python
 ```
 
-然后：
+Enter the LlamaFactory directory:
 
-```
+```bash
 cd /mnt/sdd/wqd/AAA_Python_model/LlamaFactory-main
 ```
-llamafactory-cli webui
-或者
-llamafactory-cli webui --host 0.0.0.0 --port 7860
-或者
-python -m llamafactory.cli webui
-或者单卡
-CUDA_VISIBLE_DEVICES=0 llamafactory-cli webui --trust_remote_code True
-或者自选卡
-CUDA_VISIBLE_DEVICES=0,1,2,3 llamafactory-cli webui --trust_remote_code True
 
-服务器上面大模型路径是：
+Start the web UI with one of the following commands:
+
+```bash
+llamafactory-cli webui
+llamafactory-cli webui --host 0.0.0.0 --port 7860
+python -m llamafactory.cli webui
+CUDA_VISIBLE_DEVICES=0 llamafactory-cli webui --trust_remote_code True
+CUDA_VISIBLE_DEVICES=0,1,2,3 llamafactory-cli webui --trust_remote_code True
+```
+
+Example server model paths:
+
+```text
 /mnt/sdd/wqd/AAA_Python_model/Qwen3-0.6b
 /mnt/sdd/wqd/AAA_Python_model/Qwen3-1.7b
 /mnt/sdd/wqd/AAA_Python_model/Qwen3-8b
-
 /mnt/sdd/wqd/AAA_Python_model/Qwen3-14b
-
 /mnt/sdd/wqd/AAA_Python_model/Qwen3-32b
+```
 
-![image-20260503203508951](C:\Users\hp\AppData\Roaming\Typora\typora-user-images\image-20260503203508951.png)
+## Notes
+
+- Do not commit real API keys. Use `DEEPSEEK_API_KEY` or another environment variable.
+- Large model weights such as `bge-large-zh-v1.5/pytorch_model.bin` should be downloaded separately or managed with Git LFS instead of being committed directly to the repository.
+- Generated JSONL files can be large. Commit representative samples when possible, and keep full production datasets in dedicated storage when they exceed normal GitHub repository limits.
