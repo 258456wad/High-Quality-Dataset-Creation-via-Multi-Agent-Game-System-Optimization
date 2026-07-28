@@ -8,15 +8,35 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 from generator_agent import GeneratorAgent
 from planner_agent import PlannerAgent
-from project_paths import (
-    BGE_MODEL_PATH,
-    CACHE_DIR,
-    DATA_DIR,
-    OUTPUT_DIR,
-    ensure_parent_dir,
-    require_env,
-)
 from Similarity_And_Selection_Agent import SimilarityAndSelectionAgent
+
+
+CODE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", CODE_DIR.parent)).resolve()
+
+
+def resolve_project_path(env_name, default_relative_path):
+    value = os.environ.get(env_name)
+    if value:
+        return Path(value).expanduser().resolve()
+    return (PROJECT_ROOT / default_relative_path).resolve()
+
+
+DATA_DIR = resolve_project_path("DATA_DIR", "data")
+OUTPUT_DIR = resolve_project_path("OUTPUT_DIR", "output_data")
+CACHE_DIR = resolve_project_path("HF_DATASETS_CACHE", "temp_cache")
+BGE_MODEL_PATH = resolve_project_path("BGE_MODEL_PATH", "bge-large-zh-v1.5")
+
+
+def require_env(env_name):
+    value = os.environ.get(env_name)
+    if not value:
+        raise RuntimeError(f"Environment variable {env_name} is required.")
+    return value
+
+
+def ensure_parent_dir(path):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
 
 
 def ask_int(prompt, valid_values=None):
