@@ -10,16 +10,16 @@ Note:
 4. Your created math problem should include no more than 2 sub-problems.
 '''
 
-math_template_cn = '''根据以下人设，创建一个数学题：
+math_template_cn = '''Create a math problem related to the following persona:
 
 {persona}
 
-注意：
+Note:
 
-1. 该数学题需具备挑战性，涉及高级数学技能与知识，只有顶尖人才能正确解答。
-2. 你应充分利用人设描述，使数学题独特且与该人设高度相关。
-3. 你的回答应包含该数学题的解答。
-4. 你创建的数学题不应包含超过 2 个子问题。
+1. The math problem should be challenging and require advanced mathematical skills and knowledge.
+2. Make full use of the persona description so the problem is unique and closely tied to the persona.
+3. Your response should include the solution to the created math problem.
+4. The created math problem should include no more than 2 sub-problems.
 '''
 
 finance_template = '''Create a finance problem related to the following persona:
@@ -34,16 +34,16 @@ Note:
 4. Your finance problem should include no more than 2 sub-problems.
 '''
 
-finance_template_cn = '''根据以下人设，创建一个金融题：
+finance_template_cn = '''Create a finance problem related to the following persona:
 
 {persona}
 
-注意：
+Note:
 
-1. 该金融题需具备挑战性，涉及高级量化金融概念（例如随机过程、风险度量、衍生品定价、投资组合优化）。
-2. 你应充分利用人设描述，使题目独特且与该人设高度相关。
-3. 你的回答应包含解答。
-4. 你创建的金融题不应包含超过 2 个子问题。
+1. The finance problem should be challenging and involve advanced quantitative finance concepts, such as stochastic processes, risk measures, derivatives pricing, and portfolio optimization.
+2. Make full use of the persona description so the problem is unique and closely tied to the persona.
+3. Your response should include the solution.
+4. The created finance problem should include no more than 2 sub-problems.
 '''
 
 
@@ -488,82 +488,83 @@ Note:
 '''
 
 # Stock and Securities Templates
-stock_analysis_cn = '''根据以下人设，创建一个关于股票分析的问题或任务：
+stock_analysis_cn = '''Create a stock analysis question or task related to the following persona:
 
 {persona}
 
-注意：
+Note:
 
-1. 该问题需具备专业性和挑战性，涉及股票技术分析、基本面分析、估值方法等高级财务知识。
-2. 问题应该结合该人设的背景和专业经验，使其独特且与该人设高度相关。
-3. 你的回答应包含具体的股票分析方法、数据引用或投资建议。
-4. 你创建的问题应包含不超过3个分析维度（如技术面、基本面、市场面等）。
+1. The question should be professional and challenging, involving advanced financial knowledge such as technical analysis, fundamental analysis, and valuation methods.
+2. The question should use the persona's background and professional experience so it is unique and closely tied to the persona.
+3. Your response should include concrete stock analysis methods, data references, or investment recommendations.
+4. The created question should include no more than 3 analytical dimensions, such as technicals, fundamentals, and market conditions.
 '''
 
 stock_knowledge_cn = '''{persona}
 
-假设你是上述人设描述的专业人士，你正在撰写一篇关于证券投资的深度文章，利用你的知识、经验和见解来帮助他人学习和获益。
+Assume you are the professional described by the persona above. You are writing an in-depth article about securities investment, using your knowledge, experience, and insights to help others learn from it.
 
-注意：
+Note:
 
-1. 文章应具有专业性、信息量丰富，涵盖股票市场、证券知识或投资策略的深度内容。
-2. 你的回答应包含文章标题。
-3. 文章应包含具体的数据、案例研究或理论分析。
+1. The article should be professional, information-rich, and cover in-depth content about the stock market, securities knowledge, or investment strategies.
+2. Your response should include the article title.
+3. The article should include concrete data, case studies, or theoretical analysis.
 '''
 
-trading_strategy_cn = '''根据以下人设，创建一个关于交易策略的问题或方案：
+trading_strategy_cn = '''Create a trading strategy question or plan related to the following persona:
 
 {persona}
 
-注意：
+Note:
 
-1. 该策略需具备可操作性和专业性，涉及风险管理、头寸管理、市场时机等因素。
-2. 你应充分利用人设描述，使策略独特且与该人设的投资风格高度相关。
-3. 你的回答应包含具体的交易规则、入场条件、止损点和利润目标。
-4. 策略应考虑不同的市场条件（牛市、熊市、震荡市场）。
+1. The strategy should be actionable and professional, covering risk management, position sizing, market timing, and related factors.
+2. Make full use of the persona description so the strategy is unique and closely tied to the persona's investment style.
+3. Your response should include concrete trading rules, entry conditions, stop-loss rules, and profit targets.
+4. The strategy should consider different market regimes, including bull markets, bear markets, and range-bound markets.
 '''
 
-risk_assessment_cn = '''根据以下人设和投资背景，创建一个关于风险评估的问题或分析：
+risk_assessment_cn = '''Create a risk assessment question or analysis related to the following persona and investment context:
 
 {persona}
 
-注意：
+Note:
 
-1. 风险评估需具备深度和专业性，涉及信用风险、市场风险、流动性风险、系统性风险等。
-2. 你应充分利用人设描述来分析特定投资或投资组合的风险。
-3. 你的回答应包含具体的风险指标（如VaR、夏普比率、Beta系数）和风险缓解措施。
-4. 分析应包含不超过3个主要风险因素。
+1. The risk assessment should be deep and professional, covering credit risk, market risk, liquidity risk, systemic risk, and related areas.
+2. Make full use of the persona description to analyze the risk of a specific investment or portfolio.
+3. Your response should include concrete risk metrics, such as VaR, Sharpe ratio, beta, and mitigation measures.
+4. The analysis should include no more than 3 major risk factors.
 '''
 
 market_insight_cn = '''{persona}
 
-假设你是上述人设描述的投资专家或市场分析师，你正在撰写一份关于当前市场形势的深度分析报告，利用你的专业知识和市场敏感性来提供独特的市场洞察。
+Assume you are the investment expert or market analyst described by the persona above. You are writing an in-depth report on current market conditions, using your expertise and market sensitivity to provide distinctive market insight.
 
-注意：
+Note:
 
-1. 分析应具有时效性和前瞻性，涵盖行业动态、宏观经济影响或市场机会。
-2. 你的回答应包含报告标题和核心观点。
-3. 报告应包含具体的数据支持、趋势判断和投资建议。
+1. The analysis should be timely and forward-looking, covering industry dynamics, macroeconomic effects, or market opportunities.
+2. Your response should include the report title and key viewpoints.
+3. The report should include concrete data support, trend judgments, and investment recommendations.
 '''
 
-# 建议在 prompt_templates.py 中添加
+# General high-quality task-generation template
 universal_gen_v2_cn = '''
-### 角色背景
+### Persona Background
 {persona}
 
-### 任务指令
-你现在是一名顶尖的内容生成专家。请结合上述人设的专业知识、思维方式和语言习惯，创作一个高质量的挑战性任务。
+### Task Instruction
+You are now an elite content generation expert. Use the persona's professional knowledge, reasoning style, and communication habits to create a high-quality challenging task.
 
-### 创作要求
-1. 任务类型：可以是复杂的逻辑推理、专业领域深度分析、或是跨学科的综合问题。
-2. 难度等级：必须是该领域专家级别才能处理的问题。
-3. 语言：必须使用中文。
+### Creation Requirements
+1. Task type: complex logical reasoning, deep domain analysis, or an interdisciplinary comprehensive problem.
+2. Difficulty level: the task must require expert-level ability in the relevant field.
+3. Language: use polished professional English.
 
-### 输出格式（必须严格遵守以下 JSON 结构）
+### Output Format
+Return exactly the following JSON structure:
 {{
-  "thought": "（第一步：分析该角色的核心能力和特有的思维盲点）",
-  "instruction": "（第二步：基于背景，给出一个具体的、具有挑战性的指令或问题）",
-  "expected_logic": "（第三步：拆解该问题的解题关键路径和所需的知识点）",
-  "solution": "（第四步：给出该问题的标准答案或深度参考分析）"
+  "thought": "Step 1: analyze the persona's core capabilities and distinctive reasoning blind spots.",
+  "instruction": "Step 2: based on the background, provide a concrete and challenging instruction or question.",
+  "expected_logic": "Step 3: break down the key reasoning path and required knowledge points.",
+  "solution": "Step 4: provide a standard answer or in-depth reference analysis."
 }}
 '''
