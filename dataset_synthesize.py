@@ -14,7 +14,7 @@ from prompt_templates import (
     npc_template,
     math_template,
     finance_template,
-    instruction_template_cn,# cn代表中文
+    instruction_template_cn,
     knowledge_template_cn,
     npc_template_cn,
     math_template_cn,
@@ -29,85 +29,38 @@ from prompt_templates import (
 from datasets import load_dataset
 from tqdm import tqdm
 
-# 清洗掉think
+
 def super_clean(text):
     if not text:
         return ""
-    # 1. 核心清洗：移除 <think> ... </think> 及其内部所有内容
-    # re.DOTALL 确保能匹配跨行的思考过程
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL | re.IGNORECASE)
-
-    # 2. 辅助清洗：移除 Markdown 的代码块标签（如果模型自作聪明加了的话）
     text = re.sub(r'```[a-zA-Z]*\n?', '', text)
     text = text.replace('```', '')
-
-    # 3. 移除多余的空行和首尾空格
     return text.strip()
 
-# 修改为：
-# client = OpenAI(
-#     api_key="sk-81c79590bb1243a6bfddbd5d87a96ff0", # 建议运行完后妥善保管 Key
-#     base_url="https://api.deepseek.com"
-# )
 
-# def get_response(user_prompt):
-#     completion = client.chat.completions.create(
-#         model="gpt-4o",
-#         temperature=0.7,
-#         messages=[
-#             {"role": "system", "content":  f"{system_prompt}"},
-#             {"role": "user", "content": f"{user_prompt}"}
-#         ]
-#     )
-#     return completion.choices[0].message.content
-# 加上这个装饰器
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=10))
 def get_response(client, user_prompt,system_prompt):
-    # completion = client.chat.completions.create(
-    #     model="deepseek-chat",  # 这里从 gpt-4o 改为 deepseek-chat
-    #     temperature=0.7,
-    #     messages=[
-    #         {"role": "system", "content":  f"{system_prompt}"},
-    #         {"role": "user", "content": f"{user_prompt}"}
-    #     ]
-    # )
-    # return completion.choices[0].message.content
-    # 构造消息（和原来逻辑完全一样，只是格式适配 LangChain）
+
     messages = [
         SystemMessage(content=system_prompt),
         HumanMessage(content=user_prompt)
     ]
 
-    # 调用方式改成 ChatDeepSeek 支持的格式
     completion = client.invoke(messages)
 
     return completion.content.strip()
 
 
 
-# 翻译成中文
 def translate_to_chinese(client, text: str) -> str:
     """Translate a given English text to Simplified Chinese."""
-    # completion = client.chat.completions.create(
-    #     model="deepseek-chat",
-    #     temperature=0.3,
-    #     messages=[
-    #         {"role": "system", "content": "You are a professional translator specializing in translating English text to fluent Simplified Chinese."},
-    #         {"role": "user", "content": f"Translate the following text to Simplified Chinese, preserving meaning and style, and do not add any extra commentary:\n\n{text}"}
-    #     ]
-    # )
-    # return completion.choices[0].message.content.strip()
-    # 完全保留你原来的提示词逻辑
-    """智能翻译：英文→中文，中文直接返回"""
-    # 判断是否包含中文字符
     def has_chinese(s):
         return re.search(r'[\u4e00-\u9fff]', s)
 
-    # 如果已经是中文，直接返回，不翻译！
     if has_chinese(text):
         return text.strip()
 
-    # 如果是英文，才走翻译流程
     messages = [
         SystemMessage(
             content="You are a professional translator specializing in translating English text to fluent Simplified Chinese."
@@ -120,35 +73,23 @@ def translate_to_chinese(client, text: str) -> str:
     return completion.content.strip()
 
 
-# 防止template是自定义的指令不能被使用，所以引入函数检测template是否是中文
 def is_contains_chinese(objs):
     return re.search(r'[\u4e00-\u9fff]', objs)
 
-# 专门清洗一遍数据，防止出现一些乱七八糟的格式错误
 def clean_synthesized_content(text):
-    """
-    终极数据清洗：彻底解决标点重复、缺少句号、格式混乱问题
-    """
     if not text:
         return ""
 
-
-    # 1. 先统一：把所有连续的句号/逗号 变成 一个句号
     text = re.sub(r'[。！？；\.,;]{2,}', '。', text)
 
-    # 2. 修复：角色背景：XXX任务指令 → 自动补句号
     text = re.sub(r'(角色背景：.*?[^。])(任务指令：)', r'\1。\2', text, flags=re.DOTALL)
 
-    # 3. 再全局清理：所有重复标点 → 只留一个
     text = re.sub(r'([。，！？；])\1+', r'\1', text)
 
-    # 4. 清除乱码
     text = "".join(ch for ch in text if ch.isprintable())
 
-    # 5. 清除多余空格
     text = text.strip()
 
-    # 6. 移除AI前缀废话
     patterns_to_remove = [
         r"^好的[，。]这是为您生成的.*[:：]",
         r"^根据您的要求[，。].*[:：]",
@@ -157,24 +98,16 @@ def clean_synthesized_content(text):
     for pattern in patterns_to_remove:
         text = re.sub(pattern, "", text, flags=re.MULTILINE)
 
-    # 7.双句号替换成单句号
     text = text.replace("。。", "。")
     text = text.replace("，，", "，")
 
-    # 8. 过滤非法或不可见乱码
     text = "".join(ch for ch in text if ch.isprintable() or ch in ['\n', '\r', '\t'])
 
     return text
 
 def clean_persona_field(text):
-    """
-    标准化 persona：去掉末尾杂乱标点，统一加上中文句号。
-    """
     if not text:
         return "。"
-    # 1. 去掉首尾空格
-    # 2. rstrip 去掉末尾所有的句号（中文和英文）、逗号、分号等
-    # 3. 最后统一加上一个中文句号
     return text.strip().rstrip("。").rstrip(".").rstrip("，").rstrip(",") + "。"
 
 
@@ -212,35 +145,19 @@ def main(client, args, persona_dataset, system_prompt):
         template = market_insight_cn
     elif args.template == "universal_gen_v2_cn":
         template = universal_gen_v2_cn
-        # 核心修改点：
     elif args.template is not None and len(str(args.template).strip()) > 0:
-        # 如果 args.template 既不是上面的代号，也不是空的，就直接把它当做 Prompt 模板内容
         template = args.template
-        # print(f"[System] 检测到自定义动态指令，正在使用 Planner 生成的模板内容...")
     else:
         raise ValueError("Invalid template type. Choose from 'instruction', 'knowledge', 'npc', 'math', 'finance', 'instruction_cn', 'knowledge_cn', 'npc_cn', 'math_cn', 'finance_cn', 'stock_analysis_cn', 'stock_knowledge_cn', 'trading_strategy_cn', 'risk_assessment_cn', 'market_insight_cn'.")
 
-    # Load the dataset
-    # 这里应该也可以改成其他的jsonl文件看看
-    # persona_dataset = load_dataset("proj-persona/PersonaHub", data_files="persona.jsonl")['train']
-    # 需要根据不同的情况修改jsonl输入的文件
-    # print(f"接收到 Agent 派发的 {len(persona_dataset)} 个角色进行生成.")
-    # persona_dataset = load_dataset("json", data_files=data_path)['train'] #改成本地文件
+
     if args.sample_size > 0:
-        # 增加这一行：随机打乱，seed=42 是为了让你以后能复现同样的随机结果
-        # persona_dataset = persona_dataset.shuffle(seed=42).select(range(args.sample_size))
-        # 不再随机挑选，直接选择
         persona_dataset = persona_dataset[:args.sample_size]
-    # print(f"Total number of input personas: {len(persona_dataset['input persona'])}")
 
     # If using a Chinese template, translate personas to Chinese first
     persona_cache = {}
     with open(args.output_path, "a", encoding='utf-8') as out:
-        # --- 修改点 1: 直接遍历列表对象 ---
         for item in tqdm(persona_dataset, desc="正在生成数据"):
-        # for persona in tqdm(persona_dataset['input persona']):
-        #     persona = persona.strip()
-        # --- 修改点 2: 从字典 item 中提取具体的人设文本 ---
             persona = item['input persona'].strip()
             if args.template.endswith("_cn"):
                 # Avoid translating duplicates
@@ -248,15 +165,12 @@ def main(client, args, persona_dataset, system_prompt):
                     persona_cache[persona] = translate_to_chinese(client, persona)
                 persona = persona_cache[persona]
 
-            # 如果template有中文，也需要进行personal合成，这种方法专门用来针对自定义动态指令
             elif is_contains_chinese(template):
                 if persona not in persona_cache:
                     persona_cache[persona] = translate_to_chinese(client, persona)
                 persona = persona_cache[persona]
 
-            cleaned_persona = clean_persona_field(persona)  # 这里的 cleaned_persona 是干净的词段
-            # --- 第一步：根据人设生成【问题/指令】 ---
-            # 建议在 template 中明确告诉模型：“请仅输出一个专业的问题，不要输出多余的解释”
+            cleaned_persona = clean_persona_field(persona)  
             question_generation_prompt = template.format(persona=cleaned_persona)
             raw_question = get_response(client, question_generation_prompt, system_prompt)
             # 清洗提取出的问题
