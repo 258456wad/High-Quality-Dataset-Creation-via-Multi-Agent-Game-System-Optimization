@@ -104,20 +104,20 @@ See `demo_openai_synthesize.sh` for a compact command reference.
 On the server, enter the project code directory first:
 
 ```bash
-cd /mnt/sdd/wqd/experimental-group-multi-agent-game/code
+cd code
 ```
 
 Run `manager.py` in the background:
 
 ```bash
-nohup python -u "/mnt/sdd/wqd/experimental-group-multi-agent-game/code/manager.py" > /mnt/sdd/wqd/experimental-group-multi-agent-game/code/train.log 2>&1 &
+nohup python -u manager.py > train.log 2>&1 &
 ```
 
 View logs:
 
 ```bash
-tail -f /mnt/sdd/wqd/experimental-group-multi-agent-game/code/train.log
-tail -n 1000 /mnt/sdd/wqd/experimental-group-multi-agent-game/code/train.log
+tail -f train.log
+tail -n 1000 train.log
 ```
 
 Check whether the process is still running:
@@ -151,15 +151,16 @@ CATEGORIES = {
 Run the selector in the background:
 
 ```bash
-cd /mnt/sdd/wqd/experimental-group-multi-agent-game/code
-nohup python -u "/mnt/sdd/wqd/experimental-group-multi-agent-game/code/dataset_select.py" > /mnt/sdd/wqd/experimental-group-multi-agent-game/code/output_data/dataset_select.log 2>&1 &
+cd code
+mkdir -p ../output_data
+nohup python -u dataset_select.py > ../output_data/dataset_select.log 2>&1 &
 ```
 
 View selector logs:
 
 ```bash
-tail -f /mnt/sdd/wqd/experimental-group-multi-agent-game/code/output_data/dataset_select.log
-tail -n 1000 /mnt/sdd/wqd/experimental-group-multi-agent-game/code/output_data/dataset_select.log
+tail -f ../output_data/dataset_select.log
+tail -n 1000 ../output_data/dataset_select.log
 ```
 
 Check or stop the selector process:
@@ -174,14 +175,15 @@ kill -9 PROCESS_ID
 Run the generation-only baseline in the background:
 
 ```bash
-nohup python -u "/mnt/sdd/wqd/baseline-no-dedup-generation/manager.py" > /mnt/sdd/wqd/baseline-no-dedup-generation/train.log 2>&1 &
+cd ../baseline-no-dedup-generation
+nohup python -u manager.py > train.log 2>&1 &
 ```
 
 View logs:
 
 ```bash
-tail -f /mnt/sdd/wqd/baseline-no-dedup-generation/train.log
-tail -n 1000 /mnt/sdd/wqd/baseline-no-dedup-generation/train.log
+tail -f train.log
+tail -n 1000 train.log
 ```
 
 Check or stop the process:
@@ -198,19 +200,20 @@ This baseline reproduces a random-sampling style experiment and is not the curre
 Run a random-sampling test on the server:
 
 ```bash
-python /mnt/sdd/wqd/control-random-sampling-personahub/code/openai_synthesize.py --template instruction --sample_size 5000 --output_path output_data/test_instruction_5000.jsonl
+cd ../control-random-sampling-personahub
+python code/openai_synthesize.py --template instruction --sample_size 5000 --output_path output_data/test_instruction_5000.jsonl
 ```
 
 Background run:
 
 ```bash
-cd /mnt/sdd/wqd/control-random-sampling-personahub
+cd ../control-random-sampling-personahub
 
-nohup python -u /mnt/sdd/wqd/control-random-sampling-personahub/code/openai_synthesize.py \
+nohup python -u code/openai_synthesize.py \
   --template instruction \
   --sample_size 5000 \
-  --output_path /mnt/sdd/wqd/control-random-sampling-personahub/output_data/test_instruction_5000.jsonl \
-  > /mnt/sdd/wqd/control-random-sampling-personahub/run_synthesize_instruction_5000.log 2>&1 &
+  --output_path output_data/test_instruction_5000.jsonl \
+  > run_synthesize_instruction_5000.log 2>&1 &
 
 ps -ef | grep openai_synthesize.py
 tail -f run_synthesize_instruction_5000.log
@@ -225,19 +228,19 @@ The local testing setup uses Qwen3-0.6B, Qwen3-1.7B, and Qwen3-8B models.
 Example local model directory:
 
 ```text
-E:\Python_Code\AAA_Python_model
+../AAA_Python_model
 ```
 
 After generating new data, copy or register the updated `output_data` files in the model workspace. Also update the corresponding `file_name` entry in:
 
 ```text
-E:\Python_Code\AAA_Python_model\LlamaFactory-main\data\dataset_info.json
+../AAA_Python_model/LlamaFactory-main/data/dataset_info.json
 ```
 
 Start LlamaFactory:
 
 ```bash
-cd E:\Python_Code\AAA_Python_model\LlamaFactory-main
+cd ../AAA_Python_model/LlamaFactory-main
 llamafactory-cli webui
 ```
 
@@ -250,7 +253,7 @@ pip install -e .
 Example local model path:
 
 ```text
-E:\Python_Code\AAA_Python_model\Qwen3-0.6b
+../AAA_Python_model/Qwen3-0.6b
 ```
 
 Adjust the model path in LlamaFactory and run the experiment directly.
@@ -260,19 +263,19 @@ Adjust the model path in LlamaFactory and run the experiment directly.
 Example server conda environment:
 
 ```text
-/mnt/sdd/wqd/conda_envs/qwen3_factory
+../conda_envs/qwen3_factory
 ```
 
 Example dataset path:
 
 ```text
-/mnt/sdd/wqd/AAA_Python_model/output_data/select_output_test_manager.jsonl
+../AAA_Python_model/output_data/select_output_test_manager.jsonl
 ```
 
 Activate the environment:
 
 ```bash
-conda activate /mnt/sdd/wqd/conda_envs/qwen3_factory
+conda activate ../conda_envs/qwen3_factory
 ```
 
 Optionally verify that the Python executable points to the expected conda environment:
@@ -284,7 +287,7 @@ which python
 Enter the LlamaFactory directory:
 
 ```bash
-cd /mnt/sdd/wqd/AAA_Python_model/LlamaFactory-main
+cd ../AAA_Python_model/LlamaFactory-main
 ```
 
 Start the web UI with one of the following commands:
@@ -300,11 +303,11 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 llamafactory-cli webui --trust_remote_code True
 Example server model paths:
 
 ```text
-/mnt/sdd/wqd/AAA_Python_model/Qwen3-0.6b
-/mnt/sdd/wqd/AAA_Python_model/Qwen3-1.7b
-/mnt/sdd/wqd/AAA_Python_model/Qwen3-8b
-/mnt/sdd/wqd/AAA_Python_model/Qwen3-14b
-/mnt/sdd/wqd/AAA_Python_model/Qwen3-32b
+../AAA_Python_model/Qwen3-0.6b
+../AAA_Python_model/Qwen3-1.7b
+../AAA_Python_model/Qwen3-8b
+../AAA_Python_model/Qwen3-14b
+../AAA_Python_model/Qwen3-32b
 ```
 
 ## Notes
